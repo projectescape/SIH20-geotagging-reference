@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, View, TouchableOpacity, Image } from "react-native";
 import { Camera } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as MediaLibrary from "expo-media-library";
 
 const CameraApp = () => {
   let myCam = null;
@@ -11,7 +12,9 @@ const CameraApp = () => {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
+      const { status } =
+        (await Camera.requestPermissionsAsync()) &&
+        (await MediaLibrary.requestPermissionsAsync());
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -67,16 +70,13 @@ const CameraApp = () => {
                 onPress={async () => {
                   console.log("Capture Pressed");
                   if (this.camera) console.log("Camera Available");
-                  // try {
                   const dat = await myCam.getSupportedRatiosAsync();
                   console.log(dat);
                   const img = await myCam.takePictureAsync({ quality: 1 });
                   console.log(img);
                   setCamImg(img);
-
-                  // } catch (err) {
-                  // console.log("Nahi Cala");
-                  // }
+                  const asset = await MediaLibrary.createAssetAsync(img.uri);
+                  console.log(asset);
                 }}
               >
                 <MaterialIcons name="camera" size={150} color="white" />
