@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Dimensions
+} from "react-native";
 import { Camera } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
 import * as Permissions from "expo-permissions";
 import * as FileSystem from "expo-file-system";
+import MapView from "react-native-maps";
 
 const CameraApp = () => {
   let myCam = null;
@@ -154,7 +162,7 @@ const CameraApp = () => {
           </View>
         </Camera>
       </View>
-      <View style={{ flex: 1, borderColor: "red", borderWidth: 2 }}>
+      {/* <View style={{ flex: 1, borderColor: "red", borderWidth: 2 }}>
         {camImg ? (
           <Image
             source={{ uri: camImg.uri }}
@@ -163,8 +171,25 @@ const CameraApp = () => {
         ) : (
           <Text>No Image Taken</Text>
         )}
+      </View> */}
+      <View style={styles.container}>
+        <MapView style={styles.mapStyle} />
       </View>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  mapStyle: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height / 2
+  }
+});
+
 export default CameraApp;
