@@ -3,18 +3,42 @@ import { Text, View, TouchableOpacity, Image } from "react-native";
 import { Camera } from "expo-camera";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as MediaLibrary from "expo-media-library";
+import * as Permissions from "expo-permissions";
+import * as FileSystem from "expo-file-system";
 
 const CameraApp = () => {
   let myCam = null;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.front);
   const [camImg, setCamImg] = useState(null);
+  const [recStatus, setRecStatus] = useState(false);
+
+  useEffect(() => {
+    if (myCam)
+      (async () => {
+        if (recStatus) {
+          console.log("recording");
+          const dat = await myCam.recordAsync({ quality: "480p" });
+          console.log(dat);
+          const newAdd =
+            dat.uri.slice(0, dat.uri.lastIndexOf(".mp4")) + ".geo.mp4";
+          console.log(newAdd);
+          await FileSystem.moveAsync({ from: dat.uri, to: newAdd });
+          const asset = await MediaLibrary.createAssetAsync(newAdd);
+          console.log(asset);
+        } else {
+          console.log("Recording Stopped");
+          myCam.stopRecording();
+        }
+      })();
+  }, [recStatus]);
 
   useEffect(() => {
     (async () => {
       const { status } =
         (await Camera.requestPermissionsAsync()) &&
-        (await MediaLibrary.requestPermissionsAsync());
+        (await MediaLibrary.requestPermissionsAsync()) &&
+        (await Permissions.askAsync(Permissions.AUDIO_RECORDING));
       setHasPermission(status === "granted");
     })();
   }, []);
@@ -56,7 +80,8 @@ const CameraApp = () => {
                 alignItems: "center",
                 borderColor: "purple",
                 borderWidth: 2,
-                width: "100%"
+                width: "100%",
+                flexDirection: "row"
               }}
             >
               <TouchableOpacity
@@ -80,6 +105,24 @@ const CameraApp = () => {
                 }}
               >
                 <MaterialIcons name="camera" size={150} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  borderColor: "red",
+                  borderWidth: 2,
+                  flex: 1
+                }}
+                onPress={() => {
+                  setRecStatus(!recStatus);
+                }}
+              >
+                <MaterialIcons
+                  name={!recStatus ? "videocam" : "stop"}
+                  size={150}
+                  color="white"
+                />
               </TouchableOpacity>
             </View>
           </View>
