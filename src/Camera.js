@@ -173,7 +173,12 @@ const CameraApp = () => {
         )}
       </View> */}
       <View style={styles.container}>
-        <MapView style={styles.mapStyle} />
+        <MapView
+          style={styles.mapStyle}
+          onPress={obj => {
+            console.log(obj);
+          }}
+        />
       </View>
     </>
   );
